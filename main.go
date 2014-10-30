@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"flag"
+	"fmt"
 	"github.com/oniproject/tmxconverter/tmx"
 	"io/ioutil"
 	"log"
@@ -13,7 +14,11 @@ import (
 	"strings"
 )
 
-var src = flag.String("src", "", "tmx file")
+var src = flag.String("src", "", ".tmx file")
+var wlk = flag.String("wlk", "", ".wlk.txt file")
+
+var wlkDot = flag.String("D", ".", "wlk dot")
+var wlkX = flag.String("X", "X", "wlk X")
 
 //var dst = flag.String("dst", "", "json file")
 
@@ -60,14 +65,33 @@ func main() {
 		log.Println(l)
 	}*/
 
-	b, err := json.Marshal(m)
-	if err != nil {
-		log.Fatal(err)
+	switch {
+	case *wlk != "":
+		for _, layer := range m.Layers {
+			if layer.Type == "tilelayer" && layer.Name == *wlk {
+				arr, _ := layer.Data.Data()
+				for k, v := range arr {
+					if k != 0 && k%m.Width == 0 {
+						fmt.Print("\n")
+					}
+					if v == 0 || v == -1 {
+						fmt.Print(*wlkDot)
+					} else {
+						fmt.Print(*wlkX)
+					}
+				}
+				return
+			}
+		}
+	default:
+		b, err := json.Marshal(m)
+		if err != nil {
+			log.Fatal(err)
+		}
+		var out bytes.Buffer
+		json.Indent(&out, b, "", "  ")
+		out.WriteTo(os.Stdout)
 	}
-
-	var out bytes.Buffer
-	json.Indent(&out, b, "", "  ")
-	out.WriteTo(os.Stdout)
 
 	/*data
 	ioutil.WriteFile()
