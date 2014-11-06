@@ -26,11 +26,10 @@ type Layer struct {
 
 	Color string
 
-	Properties Properties `xml:"properties>property" json:"properties,omitempty"`
+	Properties Properties `xml:"properties>property"`
 
 	Data    Data
 	Objects []Object
 
-	IImage Image `xml:"image" json:"-"`
-	Image  `xml:"-"`
+	Image Image `xml:"image"`
 }

@@ -1,6 +1,24 @@
 package tmx
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"io/ioutil"
+)
+
+func LoadTMX(fname string) (m Map, err error) {
+	data, err := ioutil.ReadFile(fname)
+	if err != nil {
+		return
+	}
+
+	err = xml.Unmarshal(data, &m)
+
+	if err != nil {
+		return
+	}
+
+	return
+}
 
 // <map>
 //
@@ -27,4 +45,17 @@ type Map struct {
 
 	// layer, objectgroup, imagelayer
 	Layers []Layer `xml:",any"`
+}
+
+func (m Map) LayerByName(name, t string) *Layer {
+	for _, layer := range m.Layers {
+		if layer.Name != name {
+			continue
+		}
+		if t != "" && layer.Type != t {
+			continue
+		}
+		return &layer
+	}
+	return nil
 }

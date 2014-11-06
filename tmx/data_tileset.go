@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 )
 
-func LoadTSX(fname string) (ts Tileset, err error) {
+func LoadTSX(fname string) (ts *Tileset, err error) {
 	data, err := ioutil.ReadFile(fname)
 	if err != nil {
 		return

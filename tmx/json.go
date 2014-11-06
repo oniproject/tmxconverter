@@ -36,8 +36,7 @@ import "path"
 	Probability float32 `xml:"probability,attr" json:"probability,omitempty"` //probability: A percentage indicating the probability that this tile is chosen when it competes with others while editing with the terrain tool. (optional) (since 0.9.0)
 
 	Properties Properties `xml:"properties>property" json:"properties,omitempty"`
-	IImage     Image      `xml:"image" json:"-"`
-	Image      `xml:"-"`
+	Image     Image      `xml:"image" json:"-"`
 	* /
 }*/
 
@@ -59,7 +58,7 @@ func (set Tileset) MarshalJSON() ([]byte, error) {
 		log.Println("LoadTSX:", ts)
 		dir = path.Dir(set.Source)
 		ts.FirstGID = set.FirstGID
-		set = ts
+		set = *ts
 	}
 	data := map[string]interface{}{
 		"firstgid":    set.FirstGID,
@@ -93,27 +92,6 @@ func (set Tileset) MarshalJSON() ([]byte, error) {
 		log.Println(err)
 	}
 	return b, err
-
-	/*XMLName xml.Name `xml:"tileset" json:"-"`
-
-	FirstGID string `xml:"firstgid,attr" json:"firstgid"` // firstgid: The first global tile ID of this tileset (this global ID maps to the first tile in this tileset).
-	// source: If this tileset is stored in an external TSX (Tile Set XML) file, this attribute refers to that file. That TSX file has the same structure as the attribute as described here.
-	// (There is the firstgid attribute missing and this source attribute is also not there. These two attributes are kept in the TMX map, since they are map specific.)
-	Source       string     `xml:"source,attr" json:"source,omitempty"`
-	Name         string     `xml:"name,attr" json:"name"`             // name: The name of this tileset.
-	TileWidth    int        `xml:"tilewidth,attr" json:"tilewidth"`   // tilewidth: The (maximum) width of the tiles in this tileset.
-	TileHeight   int        `xml:"tileheight,attr" json:"tileheight"` // tileheight: The (maximum) height of the tiles in this tileset.
-	Spacing      int        `xml:"spacing,attr" json:"spacing"`       // spacing: The spacing in pixels between the tiles in this tileset (applies to the tileset image).
-	Margin       int        `xml:"margin,attr" json:"margin"`         // margin: The margin around the tiles in this tileset (applies to the tileset image).
-	TileOffset   TileOffset `xml:"tileoffset" json:"tileoffset"`
-	Properties   Properties `xml:"properties>property" json:"properties,omitempty"`
-	IImage       Image      `xml:"image" json:"-"`
-	Image        `xml:"-"`
-	TerrainTypes []*Terrain       `xml:"terraintypes>terrain" json:"terrains,omitempty"`
-	Tiles        []*Tile          `xml:"tile" json:"-"`
-	TilesJSON    map[string]*Tile `xml:"-" json:"tiles"`
-	// TODO imageheight, imagewidth, tileproperties
-	}*/
 }
 
 func (m Map) MarshalJSON() ([]byte, error) {
@@ -149,13 +127,14 @@ func (m Map) MarshalJSON() ([]byte, error) {
 		switch layer.Type {
 		case "tilelayer":
 			d, err := layer.Data.Data()
-			//log.Println(err, d)
 			if err != nil {
 				return nil, err
 			}
 			ll["data"] = d
 		case "imagelayer":
-			ll["image"] = layer.IImage.ImageSource
+			ll["image"] = layer.Image.ImageSource
+			ll["imagewidth"] = layer.Image.Width
+			ll["imageheight"] = layer.Image.Height
 		case "objectgroup":
 			ll["objects"] = layer.Objects
 		default:

@@ -63,7 +63,7 @@ func (layer *Layer) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err er
 		case xml.StartElement:
 			switch token.Name.Local {
 			case "image":
-				err = d.DecodeElement(&layer.IImage, &token)
+				err = d.DecodeElement(&layer.Image, &token)
 			case "data":
 				err = d.DecodeElement(&layer.Data, &token)
 			case "object":

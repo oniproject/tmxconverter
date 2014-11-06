@@ -3,11 +3,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"encoding/xml"
 	"flag"
 	"fmt"
 	"github.com/oniproject/tmxconverter/tmx"
-	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -27,15 +25,11 @@ func main() {
 
 	log.SetFlags(log.Lshortfile)
 
-	data, err := ioutil.ReadFile(*src)
+	m, err := tmx.LoadTMX(*src)
 	if err != nil {
-		log.Fatal("fail ReadFile", err)
+		log.Fatal("fail load tmx:", *src)
 	}
 
-	var m tmx.Map
-	if err := xml.Unmarshal(data, &m); err != nil {
-		log.Fatal("fail Unmarshal", err)
-	}
 	if err := m.Validation(); err != nil {
 		log.Fatal("fail Validation", err)
 	}
@@ -61,27 +55,22 @@ func main() {
 		log.Println(t.Image, t.IImage)
 	}
 
-	/*for _, l := range m.Layers {
-		log.Println(l)
-	}*/
-
 	switch {
 	case *wlk != "":
-		for _, layer := range m.Layers {
-			if layer.Type == "tilelayer" && layer.Name == *wlk {
-				arr, _ := layer.Data.Data()
-				for k, v := range arr {
-					if k != 0 && k%m.Width == 0 {
-						fmt.Print("\n")
-					}
-					if v == 0 || v == -1 {
-						fmt.Print(*wlkDot)
-					} else {
-						fmt.Print(*wlkX)
-					}
+		layer := m.LayerByName(*wlk, "tilelayer")
+		if layer != nil {
+			arr, _ := layer.Data.Data()
+			for k, v := range arr {
+				if k != 0 && k%m.Width == 0 {
+					fmt.Print("\n")
 				}
-				return
+				if v == 0 || v == -1 {
+					fmt.Print(*wlkDot)
+				} else {
+					fmt.Print(*wlkX)
+				}
 			}
+			return
 		}
 	default:
 		b, err := json.Marshal(m)
