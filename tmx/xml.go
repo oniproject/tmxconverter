@@ -3,15 +3,15 @@ package tmx
 import (
 	//"bytes"
 	//"encoding/csv"
+	//"log"
 	"encoding/xml"
 	"io"
-	"log"
 	"strconv"
 	"strings"
 )
 
 func (layer *Layer) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err error) {
-	log.Println("ATTR", start)
+	//log.Println("ATTR", start)
 
 	switch start.Name.Local {
 	case "layer":
@@ -24,7 +24,7 @@ func (layer *Layer) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err er
 	layer.Opacicy = 1
 
 	for _, elem := range start.Attr {
-		log.Println("\telem", elem)
+		//log.Println("\telem", elem)
 		var i int64
 		var f float64
 		switch elem.Name.Local {
@@ -58,7 +58,7 @@ func (layer *Layer) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err er
 
 	var t xml.Token
 	for t, err = d.Token(); err == nil; t, err = d.Token() {
-		log.Printf("TOKEN %T %v\n", t, t)
+		//log.Printf("TOKEN %T %v\n", t, t)
 		switch token := t.(type) {
 		case xml.StartElement:
 			switch token.Name.Local {
@@ -69,7 +69,7 @@ func (layer *Layer) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err er
 			case "object":
 				var o Object
 				err = d.DecodeElement(&o, &token)
-				log.Println("OBJECT", o)
+				//log.Println("OBJECT", o)
 				layer.Objects = append(layer.Objects, o)
 			case "properties":
 				pro := &struct {
@@ -110,7 +110,7 @@ func (data *Data) Data() (ii []int64, err error) {
 			v, err := strconv.ParseInt(strings.TrimSpace(el), 10, 64)
 			if err != nil {
 
-				log.Println("!!!!!!!!!!!", err)
+				//log.Println("!!!!!!!!!!!", err)
 				return nil, err
 			}
 			ii = append(ii, v)
@@ -132,7 +132,7 @@ func (obj *Object) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err err
 	obj.Visible = true
 
 	for _, elem := range start.Attr {
-		log.Println("\telem", elem)
+		//log.Println("\telem", elem)
 		var i int64
 		var f float64
 		switch elem.Name.Local {
@@ -169,7 +169,7 @@ func (obj *Object) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err err
 
 	var t xml.Token
 	for t, err = d.Token(); err == nil; t, err = d.Token() {
-		log.Printf("TOKEN %T %v\n", t, t)
+		//log.Printf("TOKEN %T %v\n", t, t)
 		switch token := t.(type) {
 		case xml.StartElement:
 			switch token.Name.Local {

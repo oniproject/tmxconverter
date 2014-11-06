@@ -1,9 +1,11 @@
 package tmx
 
-import "encoding/json"
-import "log"
-import "strconv"
-import "path"
+import (
+	//"log"
+	"encoding/json"
+	"path"
+	"strconv"
+)
 
 /*func (tile Tile) MarshalJSON() ([]byte, error) {
 	data := map[string]interface{}{}
@@ -55,7 +57,7 @@ func (set Tileset) MarshalJSON() ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		log.Println("LoadTSX:", ts)
+		//log.Println("LoadTSX:", ts)
 		dir = path.Dir(set.Source)
 		ts.FirstGID = set.FirstGID
 		set = *ts
@@ -89,7 +91,7 @@ func (set Tileset) MarshalJSON() ([]byte, error) {
 
 	b, err := json.Marshal(data)
 	if err != nil {
-		log.Println(err)
+		//log.Println(err)
 	}
 	return b, err
 }
@@ -138,7 +140,7 @@ func (m Map) MarshalJSON() ([]byte, error) {
 		case "objectgroup":
 			ll["objects"] = layer.Objects
 		default:
-			log.Println("!!!!!!!!!!!", layer.Type)
+			//log.Println("!!!!!!!!!!!", layer.Type)
 		}
 		layers = append(layers, ll)
 	}
@@ -147,6 +149,6 @@ func (m Map) MarshalJSON() ([]byte, error) {
 	}
 
 	b, err := json.Marshal(data)
-	log.Println(err)
+	//log.Println(err)
 	return b, err
 }
