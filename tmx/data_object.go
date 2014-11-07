@@ -1,6 +1,6 @@
 package tmx
 
-//import "encoding/xml"
+import "encoding/xml"
 
 type Point struct {
 	X int64 `json:"x"`
@@ -11,6 +11,8 @@ type Point struct {
 //
 // Can contain: properties, ellipse (since 0.9.0), polygon, polyline, image
 type Object struct {
+	XMLName xml.Name `xml:"object" json:"-"`
+
 	Name     string  `xml:"name,attr" json:"name"`                   // name: The name of the object. An arbitrary string.
 	Type     string  `xml:"type,attr" json:"type,omitempty"`         // type: The type of the object. An arbitrary string.
 	X        int64   `xml:"x,attr" json:"x"`                         // x: The x coordinate of the object in pixels.
