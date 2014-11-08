@@ -2,15 +2,11 @@ package tmx
 
 import (
 	"encoding/xml"
+	"github.com/oniproject/geom"
 	"io"
 	"strconv"
 	"strings"
 )
-
-type Point struct {
-	X int64 `json:"x"`
-	Y int64 `json:"y"`
-}
 
 // <object>
 //
@@ -20,18 +16,18 @@ type Object struct {
 
 	Name     string  `xml:"name,attr" json:"name"`                   // name: The name of the object. An arbitrary string.
 	Type     string  `xml:"type,attr" json:"type,omitempty"`         // type: The type of the object. An arbitrary string.
-	X        int64   `xml:"x,attr" json:"x"`                         // x: The x coordinate of the object in pixels.
-	Y        int64   `xml:"y,attr" json:"y"`                         // y: The y coordinate of the object in pixels.
-	Width    int64   `xml:"width,attr" json:"width,omitempty"`       // width: The width of the object in pixels (defaults to 0).
-	Height   int64   `xml:"height,attr" json:"height,omitempty"`     // height: The height of the object in pixels (defaults to 0).
+	X        float64 `xml:"x,attr" json:"x"`                         // x: The x coordinate of the object in pixels.
+	Y        float64 `xml:"y,attr" json:"y"`                         // y: The y coordinate of the object in pixels.
+	Width    float64 `xml:"width,attr" json:"width,omitempty"`       // width: The width of the object in pixels (defaults to 0).
+	Height   float64 `xml:"height,attr" json:"height,omitempty"`     // height: The height of the object in pixels (defaults to 0).
 	Rotation float64 `xml:"rotation,attr" json:"rotation,omitempty"` // rotation: The rotation of the object in degrees clockwise (defaults to 0). (on git master)
 	GID      int64   `xml:"gid,attr" json:"gid,omitempty"`           // gid: An reference to a tile (optional).
 	Visible  bool    `xml:"visible,attr" json:"visible,omitempty"`   // TODO visible: Whether the object is shown (1) or hidden (0). Defaults to 1. (since 0.9.0)
 
-	Properties Properties `xml:"properties>property" json:"properties,omitempty"`
-	Ellipse    bool       `json:"ellipse,omitempty"`
-	Polyline   []Point    `json:"polyline,omitempty"`
-	Polygon    []Point    `json:"polygon,omitempty"`
+	Properties Properties   `xml:"properties>property" json:"properties,omitempty"`
+	Ellipse    bool         `json:"ellipse,omitempty"`
+	Polyline   []geom.Coord `json:"polyline,omitempty"`
+	Polygon    []geom.Coord `json:"polygon,omitempty"`
 
 	// TODO add some others
 }
@@ -49,17 +45,17 @@ func (obj *Object) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err err
 		case "type":
 			obj.Type = elem.Value
 		case "x":
-			i, err = strconv.ParseInt(elem.Value, 10, 0)
-			obj.X = i
+			f, err = strconv.ParseFloat(elem.Value, 32)
+			obj.X = f
 		case "y":
-			i, err = strconv.ParseInt(elem.Value, 10, 0)
-			obj.Y = i
+			f, err = strconv.ParseFloat(elem.Value, 32)
+			obj.Y = f
 		case "width":
-			i, err = strconv.ParseInt(elem.Value, 10, 0)
-			obj.Width = i
+			f, err = strconv.ParseFloat(elem.Value, 32)
+			obj.Width = f
 		case "height":
-			i, err = strconv.ParseInt(elem.Value, 10, 0)
-			obj.Height = i
+			f, err = strconv.ParseFloat(elem.Value, 32)
+			obj.Height = f
 		case "rotation":
 			f, err = strconv.ParseFloat(elem.Value, 32)
 			obj.Rotation = f
@@ -96,13 +92,13 @@ func (obj *Object) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err err
 				p1 := strings.Split(p.Points, " ")
 				for _, pX := range p1 {
 					p2 := strings.Split(pX, ",")
-					x, _ := strconv.ParseInt(p2[0], 10, 64)
-					y, _ := strconv.ParseInt(p2[1], 10, 64)
+					x, _ := strconv.ParseFloat(p2[0], 64)
+					y, _ := strconv.ParseFloat(p2[1], 64)
 
 					if token.Name.Local == "polygon" {
-						obj.Polygon = append(obj.Polygon, Point{x, y})
+						obj.Polygon = append(obj.Polygon, geom.Coord{x, y})
 					} else {
-						obj.Polyline = append(obj.Polyline, Point{x, y})
+						obj.Polyline = append(obj.Polyline, geom.Coord{x, y})
 					}
 				}
 			case "properties":

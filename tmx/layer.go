@@ -2,6 +2,7 @@ package tmx
 
 import (
 	"encoding/xml"
+	"github.com/oniproject/geom"
 	"io"
 	"strconv"
 	"strings"
@@ -72,6 +73,46 @@ type Layer struct {
 	Objects []Object
 
 	Image Image `xml:"image"`
+}
+
+// XXX not return polyline
+// TODO check rotation
+func (layer *Layer) ObjectsByPoint(x, y float64) []*Object {
+	ret := []*Object{}
+	for _, object := range layer.Objects {
+		if object.Rotation != 0 {
+			panic("Rotation not support now")
+		}
+		switch {
+		case object.Ellipse:
+			dx, dy, w2, h2 :=
+				x-(object.X+object.Width/2),
+				y-(object.Y+object.Height/2),
+				object.Width*object.Width,
+				object.Height*object.Height
+
+			if (dx*dx)/w2+(dy*dy)/h2 <= 1 {
+				ret = append(ret, &object)
+			}
+		case len(object.Polygon) != 0:
+		case len(object.Polyline) != 0:
+			// pass
+			poly := geom.Polygon{}
+			for _, v := range object.Polyline {
+				poly.AddVertex(geom.Coord{v.X, v.Y})
+			}
+			if poly.ContainsCoord(geom.Coord{x, y}) {
+				ret = append(ret, &object)
+			}
+		case object.GID != 0:
+		default: // rect
+			if x >= object.X && x <= object.X+object.Width &&
+				y >= object.Y && y <= object.Y+object.Height {
+				ret = append(ret, &object)
+			}
+		}
+	}
+	return ret
 }
 
 func (layer *Layer) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err error) {
